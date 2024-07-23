@@ -1,15 +1,21 @@
 ## Initial Setup
-1. Activate `venv`
+1. Create a virtual environment:
+   ```
+   python3 -m venv venv
+   ```
+
+2. Activate `venv`
     ```
     source venv/bin/activate
     ```
 
-2. Install dependencies
+3. Install dependencies
     ```
     pip3 install -r ./requirements-dev.txt --trusted-host files.pythonhosted.org
+    pip3 install -r ./requirements.txt --trusted-host files.pythonhosted.org
     ```
 
-3. [Install and run DynamoDB locally](https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/DynamoDBLocal.DownloadingAndRunning.html)
+4. [Install and run DynamoDB locally](https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/DynamoDBLocal.DownloadingAndRunning.html)
    The last command will be
    ```
    java -Djava.library.path=./DynamoDBLocal_lib -jar DynamoDBLocal.jar -sharedDb
@@ -18,10 +24,10 @@
 
 Then, in a separate terminal window:
 
-4. create local table with composite key, using `user_id` as partition key and `thread_id` as sort key
+5. create local table with composite key, using `user_id` as partition key and `thread_id` as sort key
     ```
     aws dynamodb create-table \
-        --table-name and_gpt_message_history \
+        --table-name local_starter_dynamo_table \
         --key-schema \
             AttributeName=user_id,KeyType=HASH \
         --attribute-definitions AttributeName=user_id,AttributeType=N \
@@ -30,7 +36,7 @@ Then, in a separate terminal window:
         --endpoint-url=http://localhost:8000
     ```
 
-5. Run the app:
+6. Run the app:
     ```
     flask --app index
     ```
