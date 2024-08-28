@@ -142,6 +142,7 @@ jobs:
         else
           zappa deploy $env
         echo "api_url=$api_gateway_url" >> "$GITHUB_OUTPUT"
+      working-directory: ./backend
 
   deploy-frontend:
     runs-on: ubuntu-latest
