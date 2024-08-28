@@ -9,7 +9,6 @@
           "s3transfer",
           "concurrent"
       ],
-      "profile_name": "admin",
       "project_name": "python-starter-app-dev",
       "runtime": "python3.9",
       "s3_bucket": "starter-zappa-lambda-dev"
@@ -24,7 +23,6 @@
           "s3transfer",
           "concurrent"
       ],
-      "profile_name": "admin",
       "project_name": "python-starter-app-prd",
       "runtime": "python3.9",
       "s3_bucket": "starter-zappa-lambda-prd"
