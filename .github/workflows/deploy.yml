@@ -14,9 +14,9 @@ jobs:
       - id: env
         run: |
           if [[ $GITHUB_REF_NAME == 'main' ]]; then
-              echo "env=prd" >> "$GITHUB_ENV"
+              echo "env=prd" >> "$GITHUB_OUTPUT"
           else
-              echo "env=dev" >> "$GITHUB_ENV"
+              echo "env=dev" >> "$GITHUB_OUTPUT"
           fi
 
   changes:
