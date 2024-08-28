@@ -134,9 +134,12 @@ jobs:
     - name: Install and deploy via Zappa
       id: deploy
       run: |
-        pip install -r ./requirements.txt --trusted-host files.pythonhosted.org
+        python -m pip install --upgrade pip
+        echo "upgraded pip"
+        pip install -r ./requirements.txt
+        echo "installed dependencies, continuing"
         zappa status $env
-        # api_gateway_url=$(zappa status $env | grep "API Gateway URL"  | sed 's/^.* //')
+        api_gateway_url=$(zappa status $env | grep "API Gateway URL"  | sed 's/^.* //')
         if [ -z "$api_gateway_url" ]; then
           zappa update $env
         else
@@ -193,6 +196,7 @@ jobs:
         run: |
           cat << EOF > .env
           REACT_APP_GOOGLE_O_AUTH_CLIENT_ID=${{ secrets.GOOGLE_O_AUTH_CLIENT_ID }}
+          REACT_APP_BASE_URL=${{ env.api_url }}
           EOF
         working-directory: ./frontend
 
