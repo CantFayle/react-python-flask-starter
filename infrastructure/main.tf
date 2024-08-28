@@ -5,6 +5,11 @@ terraform {
       version = "~> 5.0"
     }
   }
+  backend "s3" {
+    bucket = "conorfayle-terraform-state"
+    key    = "react-flask-starter"
+    region = "eu-west-2"
+  }
   required_version = ">= 1.7"
 }
 
