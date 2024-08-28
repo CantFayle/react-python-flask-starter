@@ -9,9 +9,9 @@
           "s3transfer",
           "concurrent"
       ],
-      "project_name": "python-starter-app-dev",
+      "project_name": "python-starter-app",
       "runtime": "python3.9",
-      "s3_bucket": "starter-zappa-lambda-dev"
+      "s3_bucket": "starter-zappa-lambda"
   },
   "prd": {
       "app_function": "app.app",
@@ -23,8 +23,8 @@
           "s3transfer",
           "concurrent"
       ],
-      "project_name": "python-starter-app-prd",
+      "project_name": "python-starter-app",
       "runtime": "python3.9",
-      "s3_bucket": "starter-zappa-lambda-prd"
+      "s3_bucket": "starter-zappa-lambda"
   }
 }

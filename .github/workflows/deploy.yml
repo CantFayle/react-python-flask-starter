@@ -142,12 +142,16 @@ jobs:
     - name: Deploy via Zappa
       id: deploy
       run: |
-        zappa status $env
-        api_gateway_url=$(zappa status $env | grep "API Gateway URL"  | sed 's/^.* //')
-        if [ -z "$api_gateway_url" ]; then
-          zappa update $env
-        else
+        set -e  # Exit if any command fails
+        zappa_status_output=$(zappa status $env 2>&1 || true)
+        
+        if echo "$zappa_status_output" | grep -q "No Lambda"; then
+          echo "Environment not deployed. Running zappa deploy."
           zappa deploy $env
+        else
+          echo "Environment already deployed. Running zappa update."
+          zappa update $env
+        fi
         echo "api_url=$api_gateway_url" >> "$GITHUB_OUTPUT"
       working-directory: ./backend
 
