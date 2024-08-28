@@ -147,6 +147,7 @@ jobs:
     - name: Deploy via Zappa
       id: deploy
       run: |
+        source venv/bin/activate  # Activate the virtual environment again
         set -e  # Exit if any command fails
         zappa_status_output=$(zappa status $env 2>&1 || true)
         
