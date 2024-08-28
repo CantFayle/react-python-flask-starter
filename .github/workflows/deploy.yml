@@ -223,6 +223,10 @@ jobs:
         run: |
           echo "dist_id=$(terraform -chdir=infrastructure output -raw cloudfront_distribution_id)" >> $GITHUB_ENV
 
+      - name: Get ID of Cloudfront Distribution
+        run: |
+          echo "cloudfront_url=$(terraform -chdir=infrastructure output -raw cloudfront_url)" >> $GITHUB_ENV
+
       - name: Run Purge Command
         run: |
           aws s3 rm s3://$s3_bucket_name --recursive
@@ -234,3 +238,7 @@ jobs:
       - name: Invalidate CloudFront distribution
         run: |
           aws cloudfront create-invalidation --distribution-id $dist_id --paths "/*" "/"
+
+      - name: Print CloudFront URL
+        run: |
+          echo "Website is live here: $env.cloudfront_url"
