@@ -138,17 +138,18 @@ jobs:
         python3 -m pip install -r ./requirements.txt --trusted-host files.pythonhosted.org
         zappa status $env
         # api_gateway_url=$(zappa status $env | grep "API Gateway URL"  | sed 's/^.* //')
-        # if [ -z "$api_gateway_url" ]; then
-        #   zappa update $env
-        # else
-        #   zappa deploy $env
-        # echo "api_url=$api_gateway_url" >> "$GITHUB_OUTPUT"
+        if [ -z "$api_gateway_url" ]; then
+          zappa update $env
+        else
+          zappa deploy $env
+        echo "api_url=$api_gateway_url" >> "$GITHUB_OUTPUT"
 
   deploy-frontend:
     runs-on: ubuntu-latest
     needs: [env, changes, deploy-infra, deploy-backend]
     env:
-      env: ${{needs.env.outputs.env}}
+      env: ${{ needs.env.outputs.env }}
+      api_url: ${{ needs.deploy-backend.outputs.api_url }}
     if: |
       needs.changes.outputs.frontend == 'true' &&
       always() &&
