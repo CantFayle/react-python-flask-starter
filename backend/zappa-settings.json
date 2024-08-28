@@ -1,0 +1,17 @@
+{
+  "dev": {
+      "app_function": "app.app",
+      "aws_region": "eu-west-2",
+      "exclude": [
+          "boto3",
+          "dateutil",
+          "botocore",
+          "s3transfer",
+          "concurrent"
+      ],
+      "profile_name": "admin",
+      "project_name": "python-starter-app",
+      "runtime": "python3.9",
+      "s3_bucket": "starter-zappa-lambda"
+  }
+}

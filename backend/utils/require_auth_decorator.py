@@ -13,7 +13,6 @@ def is_access_token_valid(access_token, user_id):
             }
         },
     )
-    # return token_response.status_code == 200
     if token_response.status_code != 200:
         return False
 
