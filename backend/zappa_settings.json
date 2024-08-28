@@ -10,8 +10,23 @@
           "concurrent"
       ],
       "profile_name": "admin",
-      "project_name": "python-starter-app",
+      "project_name": "python-starter-app-dev",
       "runtime": "python3.9",
-      "s3_bucket": "starter-zappa-lambda"
+      "s3_bucket": "starter-zappa-lambda-dev"
+  },
+  "prd": {
+      "app_function": "app.app",
+      "aws_region": "eu-west-2",
+      "exclude": [
+          "boto3",
+          "dateutil",
+          "botocore",
+          "s3transfer",
+          "concurrent"
+      ],
+      "profile_name": "admin",
+      "project_name": "python-starter-app-prd",
+      "runtime": "python3.9",
+      "s3_bucket": "starter-zappa-lambda-prd"
   }
 }
