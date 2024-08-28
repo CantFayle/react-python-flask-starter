@@ -1,0 +1,208 @@
+name: Build and Deploy to AWS
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  env:
+    runs-on: ubuntu-latest
+    outputs:
+      env: ${{ steps.env.outputs.env }}
+    steps:
+      - id: env
+        run: |
+          if [[ $GITHUB_REF_NAME == 'main' ]]; then
+              echo "env=prd" >> "$GITHUB_ENV"
+          else
+              echo "env=dev" >> "$GITHUB_ENV"
+          fi
+
+  changes:
+    runs-on: ubuntu-latest
+    outputs:
+      infra: ${{ steps.filter.outputs.infra }}
+      frontend: ${{ steps.filter.outputs.frontend }}
+      backend: ${{ steps.filter.outputs.backend }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Check changes
+        uses: dorny/paths-filter@v3
+        id: filter
+        with:
+          filters: |
+            infra:
+              - 'infrastructure/**'
+              - '.github/**'
+            frontend:
+              - 'frontend/**'
+              - '.github/**'
+            backend:
+              - 'backend/**'
+              - '.github/**'
+
+  # deploy-infra:
+  #   runs-on: ubuntu-latest
+  #   needs: [env, changes]
+  #   if: |
+  #     needs.changes.outputs.infra == 'true' &&
+  #     always() &&
+  #     !contains(needs.*.result, 'failure') &&
+  #     !contains(needs.*.result, 'cancelled')
+
+  #   steps:
+  #     - name: Checkout code
+  #       uses: actions/checkout@v3
+
+  #     - name: Configure AWS credentials
+  #       uses: aws-actions/configure-aws-credentials@v2
+  #       with:
+  #         aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+  #         aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+  #         aws-region: 'eu-west-2'
+      
+  #     - name: Set up Terraform
+  #       uses: hashicorp/setup-terraform@v2
+  #       with:
+  #         terraform_version: 1.9.5
+  #         terraform_wrapper: false
+
+  #     - name: Initialize Terraform
+  #       run: terraform init
+  #       working-directory: ./infrastructure
+
+  #     - name: Select Terraform environment
+  #       run: terraform workspace new $env
+  #       working-directory: ./infrastructure
+
+  #     - name: Generate Terraform Plan
+  #       id: plan
+  #       run: terraform plan
+  #       working-directory: ./infrastructure
+
+  #     - name: Apply Terraform Plan
+  #       run: terraform apply -auto-approve
+  #       working-directory: ./infrastructure
+      
+  # deploy-backend:
+  #   runs-on: ubuntu-latest
+  #   needs: [env, changes, deploy-infra]
+  #   if: |
+  #     needs.changes.outputs.backend == 'true' &&
+  #     always() &&
+  #     !contains(needs.*.result, 'failure') &&
+  #     !contains(needs.*.result, 'cancelled')
+  #   steps:
+  #   - name: Checkout code
+  #     uses: actions/checkout@v3
+
+  #   - name: Configure AWS credentials
+  #     uses: aws-actions/configure-aws-credentials@v2
+  #     with:
+  #       aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+  #       aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+  #       aws-region: 'eu-west-2'
+    
+  #   - name: Set up Terraform
+  #     uses: hashicorp/setup-terraform@v2
+  #     with:
+  #       terraform_version: 1.9.5
+  #       terraform_wrapper: false
+
+  #   - name: Initialize Terraform
+  #     run: terraform init
+  #     working-directory: ./infrastructure
+
+  #   - name: Select Terraform environment
+  #     run: terraform workspace new $env
+  #     working-directory: ./infrastructure
+
+  #   - name: Install and deploy via Zappa
+  #     run: |
+  #       python3 -m venv venv
+  #       source /venv/bin/activate
+  #       pip3 install zappa
+  #       api_gateway_url=$(zappa status $env | grep "API Gateway URL"  | sed 's/^.* //')
+  #       if [api_gateway_url]; then
+  #         zappa update $env
+  #       else
+  #         zappa deploy $env
+
+  # deploy-frontend:
+  #   runs-on: ubuntu-latest
+  #   needs: [env, changes, deploy-infra, deploy-backend]
+  #   if: |
+  #     needs.changes.outputs.frontend == 'true' &&
+  #     always() &&
+  #     !contains(needs.*.result, 'failure') &&
+  #     !contains(needs.*.result, 'cancelled')
+  #   steps:
+  #     - name: Checkout code
+  #       uses: actions/checkout@v3
+
+  #     - name: Configure AWS credentials
+  #       uses: aws-actions/configure-aws-credentials@v2
+  #       with:
+  #         aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+  #         aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+  #         aws-region: 'eu-west-2'
+      
+  #     - name: Set up Terraform
+  #       uses: hashicorp/setup-terraform@v2
+  #       with:
+  #         terraform_version: 1.9.5
+  #         terraform_wrapper: false
+
+  #     - name: Initialize Terraform
+  #       run: terraform init
+  #       working-directory: ./infrastructure
+
+  #     - name: Select Terraform environment
+  #       run: terraform workspace new $env
+  #       working-directory: ./infrastructure
+        
+  #     - name: Set up Node.js
+  #       uses: actions/setup-node@v3
+  #       with:
+  #         node-version: '20'
+
+  #     - name: Install dependencies
+  #       run: npm install
+  #       working-directory: ./frontend
+
+  #     - name: Populate .env file
+  #       run: |
+  #         cat << EOF > .env
+  #         REACT_APP_GOOGLE_O_AUTH_CLIENT_ID=${{ secrets.GOOGLE_O_AUTH_CLIENT_ID }}
+  #         EOF
+  #       working-directory: ./frontend
+
+  #     - name: Run all tests
+  #       run: npm run test-all
+  #       working-directory: './frontend'
+  #     - name: Build app
+  #       run: npm run build
+  #       working-directory: ./frontend
+
+  #     - name: Get name of S3 bucket
+  #       run: |
+  #         echo "s3_bucket_name=$(terraform -chdir=infrastructure output -raw s3_static_site_bucket_name)" >> $GITHUB_ENV
+      
+  #     - name: Get ID of Cloudfront Distribution
+  #       run: |
+  #         echo "dist_id=$(terraform -chdir=infrastructure output -raw cloudfront_distribution_id)" >> $GITHUB_ENV
+
+  #     - name: Run Purge Command
+  #       run: |
+  #         aws s3 rm s3://$s3_bucket_name --recursive
+
+  #     - name: Sync build to S3 bucket
+  #       run: |
+  #         aws s3 cp frontend/build s3://$s3_bucket_name --recursive
+
+  #     - name: Invalidate CloudFront distribution
+  #       run: |
+  #         aws cloudfront create-invalidation --distribution-id $dist_id --paths "/*" "/"

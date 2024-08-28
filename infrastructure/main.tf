@@ -14,13 +14,14 @@ provider "aws" {
 
 locals {
   bucket_name = format("%s-%s", var.website_bucket_name, terraform.workspace)
+  app_name = format("%s %s", var.app_name, terraform.workspace)
   table_name  = format("%s-%s", var.dynamo_table_name, terraform.workspace)
 }
 
 module "S3_Static_Website" {
   source                 = "./S3_Static_Website"
   website_bucket_name    = local.bucket_name
-  bucket_description     = "React Starter Website"
+  bucket_description     = var.app_name
   environment            = terraform.workspace
   cloudfront_domain_name = module.CloudFront.domain_name
 }
@@ -31,18 +32,18 @@ module "CloudFront" {
   website_bucket_name = local.bucket_name
 }
 
-resource "aws_dynamodb_table" "dynamo_table" {
-  name           = local.table_name
-  billing_mode   = "PAY_PER_REQUEST"
-  hash_key       = "user_id"
+# resource "aws_dynamodb_table" "dynamo_table" {
+#   name           = local.table_name
+#   billing_mode   = "PAY_PER_REQUEST"
+#   hash_key       = "user_id"
 
-  attribute {
-    name = "user_id"
-    type = "N"
-  }
+#   attribute {
+#     name = "user_id"
+#     type = "N"
+#   }
 
-  tags = {
-    Name        = var.dynamo_table_name
-    Environment = terraform.workspace
-  }
-}
+#   tags = {
+#     Name        = var.dynamo_table_name
+#     Environment = terraform.workspace
+#   }
+# }
