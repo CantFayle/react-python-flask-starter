@@ -27,6 +27,7 @@ function LoginPage() {
         <GoogleLogo />
         <span>Sign in with Google</span>
       </button>
+      <div>{process.env.REACT_APP_BASE_URL}</div>
     </div>
   );
 }

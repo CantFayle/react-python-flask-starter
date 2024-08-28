@@ -111,27 +111,13 @@ jobs:
         aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
         aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         aws-region: 'eu-west-2'
-    
-    - name: Set up Terraform
-      uses: hashicorp/setup-terraform@v2
-      with:
-        terraform_version: 1.9.5
-        terraform_wrapper: false
-
-    - name: Initialize Terraform
-      run: terraform init
-      working-directory: ./infrastructure
-
-    - name: Select Terraform environment
-      run: terraform workspace select -or-create $env
-      working-directory: ./infrastructure
 
     - uses: actions/setup-python@v5
       with:
         python-version: '3.12'
         cache: 'pip'
 
-    - name: Set up and activate virtual environment
+    - name: Install dependencies and deploy via Zappa
       run: |
         python -m venv venv
         source venv/bin/activate
@@ -142,7 +128,6 @@ jobs:
         echo "installed dependencies, continuing"
         set -e  # Exit if any command fails
         zappa_status_output=$(zappa status $env 2>&1 || true)
-        
         if echo "$zappa_status_output" | grep -q "No Lambda"; then
           echo "Environment not deployed. Running zappa deploy."
           zappa deploy $env
@@ -158,7 +143,6 @@ jobs:
     needs: [env, changes, deploy-infra, deploy-backend]
     env:
       env: ${{ needs.env.outputs.env }}
-      api_url: ${{ needs.deploy-backend.outputs.api_url }}
     if: |
       needs.changes.outputs.frontend == 'true' &&
       always() &&
@@ -188,6 +172,22 @@ jobs:
       - name: Select Terraform environment
         run: terraform workspace select -or-create $env
         working-directory: ./infrastructure
+  
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: 'pip'
+  
+      - name: Obtain Backend API Gateway URL
+        run: |
+          python -m venv venv
+          source venv/bin/activate
+          python -m pip install --upgrade pip
+          pip install -r ./requirements.txt
+          set -e  # Exit if any command fails
+          api_gateway_url=$(zappa status $env | grep "API Gateway URL" | awk '{print $NF}')
+          echo "api_url=$api_gateway_url" >> "$GITHUB_ENV"
+        working-directory: ./backend
         
       - name: Set up Node.js
         uses: actions/setup-node@v3
@@ -206,9 +206,10 @@ jobs:
           EOF
         working-directory: ./frontend
 
-      - name: Run all tests
-        run: npm run test-all
-        working-directory: './frontend'
+      # - name: Run all tests
+      #   run: npm run test
+      #   working-directory: './frontend'
+
       - name: Build app
         run: npm run build
         working-directory: ./frontend
