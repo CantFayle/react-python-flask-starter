@@ -73,7 +73,7 @@ resource "aws_cloudfront_origin_access_control" "s3_oac" {
 }
 
 resource "aws_cloudfront_function" "redirect_handler" {
-  name    = "redirect_handler"
+  name    = "redirect_handler_${terraform.env}"
   runtime = "cloudfront-js-2.0"
   comment = "Handler function for redirecting to index.html"
   publish = true
