@@ -3,7 +3,12 @@ variable "region" {
   description = "AWS Region"
 }
 
-variable "website_bucket_name" {
+variable "bucket_name" {
   type = string
   description = "Bucket name of S3 static website"
+}
+
+variable "bucket_description" {
+  type = string
+  description = "Bucket description for S3 static website"
 }

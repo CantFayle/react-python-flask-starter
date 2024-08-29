@@ -19,36 +19,22 @@ provider "aws" {
 
 locals {
   website_bucket_name = format("%s-%s", var.website_bucket_name, terraform.workspace)
-  app_name = format("%s %s", var.app_name, terraform.workspace)
-  table_name  = format("%s-%s", var.dynamo_table_name, terraform.workspace)
+  app_name            = format("%s %s", var.app_name, terraform.workspace)
+  # table_name          = format("%s-%s", var.dynamo_table_name, terraform.workspace)
 }
 
-module "S3_Static_Website" {
-  source                 = "./S3_Static_Website"
-  website_bucket_name    = local.website_bucket_name
-  bucket_description     = var.app_name
-  environment            = terraform.workspace
-  cloudfront_domain_name = module.CloudFront.domain_name
+module "s3_static_website" {
+  source                  = "./s3_static_website"
+  bucket_name             = local.website_bucket_name
+  bucket_description      = local.app_name
+  environment             = terraform.workspace
+  cloudfront_domain_name  = module.cloudfront.domain_name
+  cloudfront_arn          = module.cloudfront.arn
 }
 
-module "CloudFront" {
-  source              = "./CloudFront"
+module "cloudfront" {
+  source              = "./cloudfront"
   region              = var.region
-  website_bucket_name = local.website_bucket_name
+  bucket_name         = local.website_bucket_name
+  bucket_description  = local.app_name
 }
-
-# resource "aws_dynamodb_table" "dynamo_table" {
-#   name           = local.table_name
-#   billing_mode   = "PAY_PER_REQUEST"
-#   hash_key       = "user_id"
-
-#   attribute {
-#     name = "user_id"
-#     type = "N"
-#   }
-
-#   tags = {
-#     Name        = var.dynamo_table_name
-#     Environment = terraform.workspace
-#   }
-# }

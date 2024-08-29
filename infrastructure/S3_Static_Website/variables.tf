@@ -1,4 +1,4 @@
-variable "website_bucket_name" {
+variable "bucket_name" {
   type = string
   description = "Bucket name of S3 static website"
 }
@@ -22,4 +22,9 @@ variable "environment" {
 variable "cloudfront_domain_name" {
   type = string
   description = "CloudFront Distribution URL, used to prevent refresh breaking"
+}
+
+variable "cloudfront_arn" {
+  type = string
+  description = "CloudFront Distribution ARN"
 }

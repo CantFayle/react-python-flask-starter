@@ -1,5 +1,5 @@
 resource "aws_s3_bucket" "fe_client_bucket" {
-  bucket = var.website_bucket_name
+  bucket = var.bucket_name
   tags = {
     Name        = var.bucket_description
     Environment = var.environment
@@ -7,57 +7,36 @@ resource "aws_s3_bucket" "fe_client_bucket" {
 }
 
 resource "aws_s3_bucket_public_access_block" "public_access" {
-  bucket = var.website_bucket_name
+  bucket = var.bucket_name
 
-  block_public_acls   = true
+  block_public_acls   = false
   block_public_policy = false
-  ignore_public_acls  = true
-  restrict_public_buckets = true
+  ignore_public_acls  = false
+  restrict_public_buckets = false
 }
 
-resource "aws_s3_bucket_policy" "bucket-policy" {
-  bucket = aws_s3_bucket.fe_client_bucket.id
+resource "aws_s3_bucket_policy" "cloudfront_bucket_policy" {
+  bucket = var.bucket_name
   policy = <<EOF
-{
-    "Version": "2012-10-17",
-    "Statement": [
+    {
+      "Id": "PolicyForCloudFrontPrivateContent",
+      "Statement": [
         {
-            "Sid": "S3",
-            "Effect": "Allow",
-            "Principal": "*",
-            "Action": "s3:GetObject",
-            "Resource": [
-                "arn:aws:s3:::${var.website_bucket_name}",
-                "arn:aws:s3:::${var.website_bucket_name}/*"
-            ],
-            "Condition": {
-                "Bool": {
-                    "aws:SecureTransport": "false"
-                }
+          "Action": "s3:GetObject",
+          "Condition": {
+            "StringEquals": {
+              "AWS:SourceArn": "${var.cloudfront_arn}"   
             }
+          },
+          "Effect": "Allow",
+          "Principal": {
+            "Service": "cloudfront.amazonaws.com"
+          },
+          "Resource": "arn:aws:s3:::${var.bucket_name}/*",
+          "Sid": "AllowCloudFrontServicePrincipal"
         }
-    ]
-}
-EOF
-}
-
-resource "aws_s3_bucket_website_configuration" "website-config" {
-  bucket = aws_s3_bucket.fe_client_bucket.bucket
-  index_document {
-    suffix = var.index_document
-  }
-  error_document {
-    key = var.index_document
-  }
-  routing_rules = <<EOF
-[{
-    "Condition": {
-        "HttpErrorCodeReturnedEquals": "404"
-    },
-    "Redirect": {
-        "HostName": "${var.cloudfront_domain_name}",
-        "ReplaceKeyWith": ""
+      ],
+      "Version": "2008-10-17"
     }
-}]
-EOF
+  EOF
 }
