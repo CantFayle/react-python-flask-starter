@@ -40,12 +40,13 @@ jobs:
               - 'infrastructure/**'
               - '.github/**'
             frontend:
-              - 'infrastructure/s3_static_website/**'
+              - 'infrastructure/**'
               - 'infrastructure/cloudfront/**'
               - 'infrastructure/outputs.tf'
               - 'frontend/**'
               - '.github/**'
             backend:
+              - 'infrastructure/**'
               - 'infrastructure/dynamodb/**'
               - 'infrastructure/outputs.tf'
               - 'backend/**'
