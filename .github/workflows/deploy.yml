@@ -22,7 +22,7 @@ jobs:
         run: |
           if [[ $GITHUB_REF_NAME == 'main' ]]; then
               echo "env=prd" >> "$GITHUB_OUTPUT"
-          else [[ $GITHUB_REF_NAME == 'dev' ]]; then
+          else if [[ $GITHUB_REF_NAME == 'dev' ]]; then
               echo "env=dev" >> "$GITHUB_OUTPUT"
           fi
 
