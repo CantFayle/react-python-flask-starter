@@ -228,7 +228,7 @@ jobs:
         run: |
           echo "dist_id=$(terraform -chdir=infrastructure output -raw cloudfront_distribution_id)" >> $GITHUB_ENV
 
-      - name: Get ID of Cloudfront Distribution
+      - name: Get URL of Cloudfront Distribution
         run: |
           echo "cloudfront_url=$(terraform -chdir=infrastructure output -raw cloudfront_url)" >> $GITHUB_ENV
 
@@ -246,4 +246,4 @@ jobs:
 
       - name: Print CloudFront URL
         run: |
-          echo "Website is live here: $env.cloudfront_url"
+          echo "Website is live here: $cloudfront_url"
